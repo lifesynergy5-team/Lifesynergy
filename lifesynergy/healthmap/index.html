@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShramArogya | Map Dashboard</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- OpenPGP.js for decryption -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openpgp/5.6.0/openpgp.min.js"></script>
+
+<style>
+    #map { 
+        height: 600px; 
+        border-radius: 0.75rem; 
+        z-index: 10; 
+    }
+</style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<header class="bg-white shadow-md">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-blue-900">
+            <i class="fas fa-heartbeat text-blue-600"></i> Shram<span class="text-blue-600">Arogya</span>
+        </div>
+        <div>
+            <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Dashboard</a>
+            <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Profile</a>
+            <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Logout</a>
+        </div>
+    </nav>
+</header>
+
+<main class="container mx-auto p-8">
+    <div class="bg-white p-8 rounded-xl shadow-lg">
+        <h2 class="text-3xl font-bold text-blue-900 mb-2 text-center">Disease Hotspot Map</h2>
+        <br>
+        <div id="map-container" class="bg-gray-200 rounded-xl p-2">
+            <div id="map"></div>
+        </div>
+    </div>
+</main>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ---------------- SUPABASE CONFIG ----------------
+const supabaseUrl = 'https://clxuhmohunqntgynwmkm.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNseHVobW9odW5xbnRneW53bWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDg2NDMsImV4cCI6MjA3MjcyNDY0M30.gLPMfIREp-zCS5B3x5bbfAeHEWdjS1pDWA1Wu72LxHA';
+const { createClient } = supabase;
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+const mapContainer = document.getElementById('map-container');
+let map;
+let markersLayer = L.layerGroup();
+
+// ---------------- DISTRICT COORDINATES ----------------
+const locationCoordinates = {
+    "Thiruvananthapuram": [8.5241, 76.9366],
+    "Kollam": [8.8932, 76.6141],
+    "Alappuzha": [9.4981, 76.3388],
+    "Pathanamthitta": [9.2648, 76.7870],
+    "Kottayam": [9.5914, 76.5222],
+    "Idukki": [9.9806, 77.0194],
+    "Ernakulam": [9.9816, 76.2999],
+    "Thrissur": [10.5276, 76.2144],
+    "Palakkad": [10.7867, 76.6548],
+    "Malappuram": [11.0743, 76.0745],
+    "Kozhikode": [11.2588, 75.7804],
+    "Wayanad": [11.6854, 76.1320],
+    "Kannur": [11.8745, 75.3704],
+    "Kasaragod": [12.5125, 74.9845]
+};
+
+// ---------------- INITIALIZE MAP ----------------
+function initializeMap(center = [10.8505, 76.2711]) {
+    if (map) map.remove();
+    map = L.map('map').setView(center, 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    markersLayer.addTo(map);
+}
+
+// ---------------- DECRYPTION ----------------
+const SECRET_KEY = 'YOUR_SECRET_KEY'; // Replace with your secret key
+
+async function decryptPGP(encrypted) {
+    if (!encrypted) return null;
+    try {
+        let encryptedUint8;
+        if (typeof encrypted === 'string') {
+            encryptedUint8 = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+        } else if (encrypted instanceof Uint8Array) {
+            encryptedUint8 = encrypted;
+        } else {
+            console.warn("Unexpected encrypted data type", encrypted);
+            return null;
+        }
+        const message = await openpgp.readMessage({ binaryMessage: encryptedUint8 });
+        const { data: decrypted } = await openpgp.decrypt({
+            message,
+            passwords: [SECRET_KEY],
+            format: 'utf8'
+        });
+        return decrypted;
+    } catch (err) {
+        console.error("Decryption error:", err);
+        return null;
+    }
+}
+
+// ---------------- PROCESS & DISPLAY DATA ----------------
+async function processAndDisplayData(data) {
+    markersLayer.clearLayers();
+
+    const locationData = {};
+    for (const worker of data) {
+        let coords = locationCoordinates[worker.worksite_location?.trim()];
+        if (!coords && worker.current_address) {
+            coords = locationCoordinates[worker.current_address.trim()];
+        }
+        if (!coords) continue;
+
+        const disease = worker.conditions && worker.conditions !== 'None' ? worker.conditions : 'Unknown';
+        const locationKey = worker.current_address || worker.worksite_location;
+
+        if (!locationData[locationKey]) locationData[locationKey] = { coords, diseases: {} };
+        if (!locationData[locationKey].diseases[disease]) locationData[locationKey].diseases[disease] = 0;
+        locationData[locationKey].diseases[disease]++;
+    }
+
+    const allHotspotPoints = [];
+    for (const location in locationData) {
+        const { coords, diseases } = locationData[location];
+        for (const disease in diseases) {
+            const count = diseases[disease];
+            const point = { lat: coords[0], lng: coords[1] };
+            L.circleMarker([point.lat, point.lng], {
+                radius: 5 + count,
+                color: '#B91C1C',
+                fillColor: '#DC2626',
+                fillOpacity: 0.9
+            }).addTo(markersLayer).bindPopup(`
+                <div class="text-center">
+                    <strong class="text-lg text-red-700">HOTSPOT</strong><br>
+                    <b>${disease}</b><br>
+                    ${location}<br>
+                    Affected: <b>${count} people</b>
+                </div>
+            `);
+            allHotspotPoints.push(point);
+        }
+    }
+
+    if (allHotspotPoints.length > 0) {
+        const bounds = L.latLngBounds(allHotspotPoints.map(p => [p.lat, p.lng]));
+        map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+        console.log("No hotspots found.");
+    }
+}
+
+// ---------------- MAIN ----------------
+async function main() {
+    initializeMap();
+    try {
+        const { data, error } = await supabaseClient
+            .from('encrypted_new_migrants')
+            .select('worksite_location, current_address, conditions, contact_number, emergency_contact, aadhaar');
+
+        if (error) throw error;
+
+        for (let i = 0; i < data.length; i++) {
+            data[i].contact_number = await decryptPGP(data[i].contact_number);
+            data[i].emergency_contact = await decryptPGP(data[i].emergency_contact);
+            data[i].aadhaar = await decryptPGP(data[i].aadhaar);
+        }
+
+        processAndDisplayData(data);
+
+    } catch (e) {
+        console.error("Error:", e);
+        mapContainer.innerHTML = `<div class="text-red-600 text-center p-8"><strong>Error:</strong> Could not fetch or decrypt data.</div>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', main);
+</script>
+
+</body>
+</html>

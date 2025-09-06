@@ -1,14 +1,82 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShramArogya | Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+  
+
+
+  <section class="main-section">
+
+  <div class="left-section">
+    <div class="logo">
+      <img src="assets/mainlogo-Photoroom (1).png" alt="ShramArogya Logo">
+    </div>
+    <div class="carousel">
+      <img src="assets/Screenshot from 2025-09-06 19-35-51.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-23.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-41.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-55.png" alt=""> 
+    </div>
+    <div class="quote">
+      <p>"Migration is the journey of hope and new opportunities."</p>
+    </div>
+  </div>
+
+
+
+  <div class="right-section">
+    <div class="login-card">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <div class="input-group">
+          <label>Aadhaar Number</label>
+          <input type="text" name="aadhaar" placeholder="8855-4433-1257" maxlength="12" required>
+        </div>
+        <div id="recaptcha-container"></div>
+        <button type="submit" class="btn">
+          <i class="fas fa-paper-plane"></i> Send OTP
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<div id="otpModal" class="modal-bg">
+  <div class="otp-card">
+    <h3>Enter OTP</h3>
+    <p id="otpUser"></p>
+    <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP">
+    <button id="verifyOtpBtn">Verify OTP</button>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html> -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShramArogya | Login</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShramArogya | Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -18,26 +86,28 @@
     <div class="logo">
       <img src="assets/mainlogo-Photoroom (1).png" alt="ShramArogya Logo">
     </div>
-    <div class="carousel"></div>
+    <div class="carousel">
+      <img src="assets/Screenshot from 2025-09-06 19-35-51.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-23.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-41.png" alt=""> 
+      <img src="assets/Screenshot from 2025-09-06 19-36-55.png" alt=""> 
+    </div>
     <div class="quote">
       <p>"Migration is the journey of hope and new opportunities."</p>
     </div>
   </div>
 
-  <!-- Right Login Form -->
+  <!-- Right Section -->
   <div class="right-section">
     <div class="login-card">
       <h2>Login</h2>
       <form id="loginForm">
         <div class="input-group">
           <label>Aadhaar Number</label>
-          <input type="text" name="aadhaar" placeholder="123456789012" maxlength="12" required>
-        </div>
-        <div class="input-group">
-          <label>Phone Number</label>
-          <input type="text" name="phone" placeholder="+919876543210" required>
+          <input type="text" name="aadhaar" placeholder="8855-4433-1257" maxlength="12" required>
         </div>
         <div id="recaptcha-container"></div>
+        <p id="verification-status" class="verification-msg">Human Verification...</p>
         <button type="submit" class="btn">
           <i class="fas fa-paper-plane"></i> Send OTP
         </button>
@@ -50,6 +120,7 @@
 <div id="otpModal" class="modal-bg">
   <div class="otp-card">
     <h3>Enter OTP</h3>
+    <p id="otpUser"></p>
     <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP">
     <button id="verifyOtpBtn">Verify OTP</button>
   </div>
@@ -58,3 +129,4 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
+

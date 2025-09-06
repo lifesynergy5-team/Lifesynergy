@@ -1,0 +1,83 @@
+***Encrypted***
+
+-- create extension if not exists pgcrypto;
+-- create table users (
+--   id bigserial primary key,
+--   aadhaar bytea not null,
+--   mobile bytea not null,
+--   username text not null,
+--   created_at timestamp default now()
+-- );
+
+-- insert into users (aadhaar, mobile, username)
+-- values (
+--   pgp_sym_encrypt('123456789012', 'YOUR_SECRET_KEY'),
+--   pgp_sym_encrypt('9876543210', 'YOUR_SECRET_KEY'),
+--   'John Doe'
+-- );
+
+-- create or replace function get_user_by_aadhaar(aadhaar_input text)
+-- returns table(id bigint, username text, mobile text) as $$
+-- begin
+--   return query
+--   select id, username, pgp_sym_decrypt(mobile::bytea, 'YOUR_SECRET_KEY') as mobile
+--   from users
+--   where pgp_sym_decrypt(aadhaar::bytea, 'YOUR_SECRET_KEY') = aadhaar_input;
+-- end;
+-- $$ language plpgsql;
+
+
+-- insert into users (aadhaar, mobile, username)
+-- values (
+--   pgp_sym_encrypt('777888999222', 'YOUR_SECRET_KEY'),
+--   pgp_sym_encrypt('7023654347', 'YOUR_SECRET_KEY'),
+--   'Bhavya'
+-- );
+
+
+-- create or replace function get_user_by_aadhaar(aadhaar_input text)
+-- returns table(id bigint, username text, mobile text) as $$
+-- begin
+--   return query
+--   select id, username, pgp_sym_decrypt(mobile::bytea, 'YOUR_SECRET_KEY') as mobile
+--   from users
+--   where pgp_sym_decrypt(aadhaar::bytea, 'YOUR_SECRET_KEY') = aadhaar_input;
+-- end;
+-- $$ language plpgsql;
+
+
+
+-- Drop the old function first
+drop function if exists get_user_by_aadhaar(text);
+
+-- Recreate with aliasing
+create or replace function get_user_by_aadhaar(aadhaar_input text)
+returns table(
+  id bigint,
+  username text,
+  aadhaar text,
+  mobile text
+) as $$
+begin
+  return query
+  select
+    u.id,
+    u.username,
+    pgp_sym_decrypt(u.aadhaar::bytea, 'YOUR_SECRET_KEY') as aadhaar,
+    pgp_sym_decrypt(u.mobile::bytea, 'YOUR_SECRET_KEY') as mobile
+  from users u
+  where pgp_sym_decrypt(u.aadhaar::bytea, 'YOUR_SECRET_KEY') = aadhaar_input;
+end;
+$$ language plpgsql;
+
+select * from get_user_by_aadhaar('777888999222');
+
+
+insert into users (aadhaar, mobile, username)
+values (
+  pgp_sym_encrypt('777888999222', 'YOUR_SECRET_KEY'),   -- Aadhaar
+  pgp_sym_encrypt('+917023654347', 'YOUR_SECRET_KEY'), -- Mobile in +91 format
+  'Bhavya Singhal'
+);
+
+
