@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lifesynergy | AI Doctor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Navbar link hover underline animation */
+    .nav-link {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: -3px;
+      left: 0;
+      background: #06b6d4; /* cyan-500 */
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Hero fade in */
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fade-in 0.6s ease-out forwards; }
+    .fade-in-delay { animation: fade-in 0.9s ease-out forwards; }
+
+    /* Doctor icon pulse */
+    @keyframes pulse {
+      0% { transform: scale(1); color: #0ea5e9; }
+      50% { transform: scale(1.2); color: #0284c7; }
+      100% { transform: scale(1); color: #0ea5e9; }
+    }
+    .doctor-icon { animation: pulse 2s infinite; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Navbar -->
+  <nav class="navbar bg-white shadow-md fixed w-full top-0 left-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <img src="../assets/mainlogo-Photoroom (1).png" alt="Logo" class="w-10 h-10">
+        <span class="font-bold text-xl text-gray-800">ShramArogya</span>
+      </div>
+
+      <!-- Links with icons -->
+      <ul class="hidden md:flex space-x-8 font-medium text-gray-700">
+        <li>
+          <a href="../index.html" class="nav-link hover:text-cyan-500">
+            <i class="fas fa-home"></i> Home
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link hover:text-cyan-500">
+            <i class="fas fa-star"></i> Features
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link hover:text-cyan-500">
+            <i class="fas fa-info-circle"></i> About
+          </a>
+        </li>
+        <li>
+          <a href="#chat" class="nav-link hover:text-cyan-500">
+            <i class="fas fa-user-md"></i> AI Doctor
+          </a>
+        </li>
+      </ul>
+
+      <!-- Button -->
+      <a href="#" class="hidden md:inline-block bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-5 py-2 rounded-full shadow-lg hover:scale-105 transform transition">
+        <i class="fas fa-rocket"></i> Get Started
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button id="menu-btn" class="md:hidden text-2xl text-gray-700">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-md">
+      <ul class="flex flex-col space-y-4 p-6 text-gray-700">
+        <li><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#" class="nav-link"><i class="fas fa-star"></i> Features</a></li>
+        <li><a href="#" class="nav-link"><i class="fas fa-info-circle"></i> About</a></li>
+        <li><a href="#chat" class="nav-link"><i class="fas fa-user-md"></i> AI Doctor</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero text-center pt-28 pb-12 px-6 bg-gray-50">
+    <h1 class="fade-in text-3xl md:text-4xl font-bold text-gray-800">
+      <i class="fas fa-user-md doctor-icon text-cyan-500 mr-2"></i>
+      Talk with our AI Doctor
+    </h1>
+    <p class="fade-in-delay mt-3 text-lg text-gray-600">Your virtual health assistant, available 24/7.</p>
+  </section>
+
+  <!-- Chatbot -->
+  <!-- <section id="chat" class="chatbot-container max-w-5xl mx-auto px-6 mb-12 fade-in-delay">
+    <div class="blocker1"><h1>LifeSynergy</h1></div>
+    <iframe
+      src="https://www.chatbase.co/chatbot-iframe/-ycJdswCblFsOMVv-f9bl"
+      width="100%"
+      style="min-height: 600px"
+      frameborder="0"
+      class="rounded-2xl shadow-xl transition-transform hover:scale-105">
+    </iframe>
+  </section> -->
+
+  <!-- Chatbot -->
+<section id="chat" class="chatbot-container max-w-5xl mx-auto px-6 mb-12 fade-in-delay">
+  <div class="blocker1"><h1>LifeSynergy</h1></div>
+  <iframe
+    src="https://www.chatbase.co/chatbot-iframe/-ycJdswCblFsOMVv-f9bl"
+    width="100%"
+    style="min-height: 600px"
+    frameborder="0"
+    class="rounded-2xl shadow-xl">
+  </iframe>
+</section>
+
+
+  <!-- Footer -->
+  <footer class="text-center py-6 bg-gray-100 text-gray-600 text-sm">
+    © 2025 Lifesynergy | All Rights Reserved
+  </footer>
+
+  <!-- JS for mobile menu -->
+  <script>
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
