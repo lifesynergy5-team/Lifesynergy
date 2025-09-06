@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShramArogya | Map Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Ensuring the map container has a defined height is crucial for Leaflet to work */
+        #map { 
+            height: 600px; 
+            border-radius: 0.75rem; 
+            z-index: 10; 
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-900">
+                <i class="fas fa-heartbeat text-blue-600"></i> Shram<span class="text-blue-600">Arogya</span>
+            </div>
+            <div>
+                <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Dashboard</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Profile</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 mx-3">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-8">
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-900 mb-2 text-center">Disease Hotspot Map</h2>
+            <br>
+            
+            <!-- Map Container -->
+            <div id="map-container" class="bg-gray-200 rounded-xl p-2">
+                 <div id="map"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Custom Application Logic -->
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const supabaseUrl = 'https://clxuhmohunqntgynwmkm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNseHVobW9odW5xbnRneW53bWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDg2NDMsImV4cCI6MjA3MjcyNDY0M30.gLPMfIREp-zCS5B3x5bbfAeHEWdjS1pDWA1Wu72LxHA';
+        
+        // The 'supabase' object is now available globally from the script tag above
+        const { createClient } = supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        const mapContainer = document.getElementById('map-container');
+        let map;
+        let markersLayer = L.layerGroup();
+
+        // prettier-ignore
+        const locationCoordinates = {
+            "Ernakulam, 680035": [10.02, 76.30], "Ernakulam, 682579": [9.98, 76.28], "Ernakulam, 683346": [10.12, 76.35], "Ernakulam, 684669": [10.05, 76.41], "Ernakulam, 683335": [10.15, 76.32], "Ernakulam, 682442": [9.97, 76.33], "Ernakulam, 682532": [10.08, 76.25], "Ernakulam, 687711": [9.89, 76.45], "Ernakulam, 680452": [10.18, 76.40], "Ernakulam, 688518": [9.75, 76.34], "Ernakulam, 684844": [10.09, 76.38], "Ernakulam, 687238": [9.92, 76.51], "Ernakulam, 684011": [10.11, 76.42], "Ernakulam, 688486": [9.78, 76.39], "Ernakulam, 684050": [10.07, 76.29], "Ernakulam, 686797": [9.95, 76.55], "Ernakulam, 688947": [9.72, 76.41], "Ernakulam, 680444": [10.20, 76.37], "Ernakulam, 685733": [9.85, 76.60], "Ernakulam, 689926": [9.68, 76.48], "Ernakulam, 680672": [10.16, 76.28], "Ernakulam, 688817": [9.71, 76.31], "Ernakulam, 685325": [9.88, 76.65], "Ernakulam, 688041": [9.81, 76.33], "Ernakulam, 681976": [10.03, 76.22], "Ernakulam, 684952": [10.06, 76.48], "Ernakulam, 680841": [10.13, 76.24], "Ernakulam, 683697": [10.00, 76.38], "Ernakulam, 689043": [9.74, 76.53], "Ernakulam, 681880": [10.04, 76.19], "Ernakulam, 688847": [9.70, 76.36], "Ernakulam, 687245": [9.91, 76.53], "Ernakulam, 680601": [10.17, 76.30], "Ernakulam, 687560": [9.87, 76.49], "Ernakulam, 685568": [9.84, 76.62], "Ernakulam, 683826": [10.01, 76.40], "Ernakulam, 682529": [10.07, 76.26], "Ernakulam, 681480": [10.08, 76.20], "Ernakulam, 682950": [9.99, 76.24], "Ernakulam, 685661": [9.83, 76.68], "Ernakulam, 689272": [9.76, 76.50], "Ernakulam, 689495": [9.73, 76.55], "Ernakulam, 687673": [9.86, 76.52], "Ernakulam, 687724": [9.89, 76.43], "Ernakulam, 686078": [9.96, 76.58], "Ernakulam, 685876": [9.82, 76.64], "Ernakulam, 680046": [10.04, 76.31], "Ernakulam, 681862": [10.05, 76.18], "Ernakulam, 681768": [10.06, 76.21],
+            "Thiruvananthapuram": [8.5241, 76.9366], "Kollam": [8.8932, 76.6141], "Alappuzha": [9.4981, 76.3388], "Pathanamthitta": [9.2648, 76.7870], "Kottayam": [9.5914, 76.5222], "Idukki": [9.9806, 77.0194], "Kochi": [9.9312, 76.2673], "Thrissur": [10.5276, 76.2144], "Palakkad": [10.7867, 76.6548], "Malappuram": [11.0743, 76.0745], "Kozhikode": [11.2588, 75.7804], "Wayanad": [11.6854, 76.1320], "Kannur": [11.8745, 75.3704], "Kasaragod": [12.5125, 74.9845]
+        };
+
+        function initializeMap(center = [10.8505, 76.2711]) {
+            if (map) map.remove();
+            map = L.map('map').setView(center, 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            markersLayer.addTo(map);
+        }
+
+        function processAndDisplayData(data) {
+            markersLayer.clearLayers();
+
+            const locationData = {};
+            data.forEach(worker => {
+                const { worksite_location, conditions } = worker;
+                
+                let coords = locationCoordinates[worksite_location];
+                if (!coords) {
+                    const district = Object.keys(locationCoordinates).find(loc => worksite_location.includes(loc));
+                    if(district) coords = locationCoordinates[district];
+                }
+
+                if (!conditions || conditions.toLowerCase() === 'none' || !coords) return;
+                
+                const locationKey = worksite_location;
+                if (!locationData[locationKey]) {
+                    locationData[locationKey] = { coords, diseases: {} };
+                }
+                
+                if (!locationData[locationKey].diseases[conditions]) {
+                    locationData[locationKey].diseases[conditions] = 0;
+                }
+                locationData[locationKey].diseases[conditions]++;
+            });
+
+            const allHotspotPoints = [];
+            for (const location in locationData) {
+                const { coords, diseases } = locationData[location];
+                for (const disease in diseases) {
+                    const count = diseases[disease];
+                    
+                    if (count >= 5) {
+                        const point = { lat: coords[0], lng: coords[1] };
+                        
+                        L.circleMarker([point.lat, point.lng], { 
+                            radius: 8 + (count / 2),
+                            color: '#B91C1C',
+                            fillColor: '#DC2626',
+                            fillOpacity: 0.9 
+                        }).addTo(markersLayer).bindPopup(`
+                            <div class="text-center">
+                                <strong class="text-lg text-red-700">HOTSPOT</strong><br>
+                                <b>${disease}</b><br>
+                                ${location}<br>
+                                Affected: <b>${count} people</b>
+                            </div>
+                        `);
+                        
+                        allHotspotPoints.push(point);
+                    }
+                }
+            }
+
+            if (allHotspotPoints.length > 0) {
+                const bounds = L.latLngBounds(allHotspotPoints.map(p => [p.lat, p.lng]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+            } else {
+                 console.log("No hotspots found with 5 or more people for any single disease.");
+            }
+        }
+
+        async function main() {
+            initializeMap();
+            try {
+                const { data, error } = await supabaseClient.from('migrant_workers').select('worksite_location, conditions');
+                
+                if (error) throw error;
+                
+                if (data) {
+                    processAndDisplayData(data);
+                }
+
+            } catch (e) {
+                console.error("Error:", e);
+                mapContainer.innerHTML = `<div class="text-red-600 text-center p-8"><strong>Error:</strong> Could not connect or fetch data.</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', main);
+    </script>
+</body>
+</html>
+
