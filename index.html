@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Portal | ShramArogya</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+  <!-- Navbar -->
+  <nav class="navbar bg-white shadow-md fixed w-full top-0 left-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <img src="../assets/mainlogo-Photoroom (1).png" alt="Logo" class="w-10 h-10">
+        <span class="font-bold text-xl text-gray-800">Doctor Portal</span>
+      </div>
+
+      <!-- Links -->
+      <ul class="hidden md:flex space-x-8 font-medium text-gray-700">
+      <li><a href="#" class="nav-link"><i class="fas fa-users"></i> Migrants Health Map</a></li>
+      <li><a href="#" class="nav-link"><i class="fas fa-hospital"></i> Health</a></li>
+      <li><a href="../ai/index.html" class="nav-link"><i class="fas fa-chart-line"></i> Health Predictions</a></li>
+      <li><a href="#" class="nav-link"><i class="fas fa-envelope"></i> Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="pt-28 max-w-5xl mx-auto px-6 space-y-8">
+    <!-- Aadhaar Search -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fas fa-id-card"></i> Search Patient by Aadhaar</h2>
+      <form id="aadhaarForm" class="flex space-x-4">
+        <input type="text" id="aadhaarInput" placeholder="Enter Aadhaar Number" maxlength="12" required
+          class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+        <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:scale-105 transition">
+          Search
+        </button>
+      </form>
+    </div>
+
+    <!-- Patient Details -->
+    <div id="patientDetails" class="hidden bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-user"></i> Patient Details</h2>
+      <div id="encryptedDetails" class="text-gray-700 space-y-2"></div>
+
+      <!-- Update Form -->
+      <h3 class="text-lg font-semibold text-blue-700 mt-6 mb-2">Update Profile</h3>
+      <form id="updateForm" class="space-y-4">
+        <input type="text" placeholder="Update Address" class="w-full p-3 border rounded-lg">
+        <input type="text" placeholder="Update Health Status" class="w-full p-3 border rounded-lg">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700">
+          Save Changes
+        </button>
+      </form>
+    </div>
+
+    <!-- Red Zones Tab -->
+    <div id="redZones" class="hidden bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-map-marked-alt"></i> Red Zones</h2>
+      <ul class="list-disc ml-6 text-gray-700">
+        <li>Kochi – High TB Cases</li>
+        <li>Kollam – Dengue Outbreak</li>
+        <li>Calicut – Malaria Risk</li>
+      </ul>
+    </div>
+
+    <!-- Risk Factor Tab -->
+    <div id="riskFactor" class="hidden bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-exclamation-triangle"></i> Risk Factor</h2>
+      <p class="text-gray-700">Based on patient’s age, vaccination records, and chronic conditions, a health risk score will be displayed here.</p>
+    </div>
+  </section>
+
+  <script>
+    // Mock encrypted patient data
+    const mockData = {
+      aadhaar: "123456789012",
+      name: "Ravi Kumar",
+      age: 34,
+      condition: "Hypertension",
+      address: "Worker Camp, Kochi"
+    };
+
+    // Function to mask sensitive info
+    function encrypt(value) {
+      return value.toString().replace(/.(?=.{4})/g, "*");
+    }
+    
+    const aadhaarForm = document.getElementById("aadhaarForm");
+    const patientDetails = document.getElementById("patientDetails");
+    const encryptedDetails = document.getElementById("encryptedDetails");
+
+    aadhaarForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const inputAadhaar = document.getElementById("aadhaarInput").value;
+
+      if (inputAadhaar === mockData.aadhaar) {
+        encryptedDetails.innerHTML = `
+          <p><b>Aadhaar:</b> ${encrypt(mockData.aadhaar)}</p>
+          <p><b>Name:</b> ${mockData.name}</p>
+          <p><b>Age:</b> ${mockData.age}</p>
+          <p><b>Condition:</b> ${mockData.condition}</p>
+          <p><b>Address:</b> ${mockData.address}</p>
+        `;
+        patientDetails.classList.remove("hidden");
+      } else {
+        alert("Patient not found!");
+      }
+    });
+  </script>
+
+</body>
+</html>
