@@ -21,3 +21,34 @@
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 </script>
+
+
+
+
+
+create or replace function decrypt_patient_by_aadhaar(aadhaar_in text,YOUR_SECRET_KEY)
+returns table (
+  full_name text,
+  dob date,
+  gender text,
+  state_origin text,
+  current_address text,
+  contact_number text,
+  emergency_contact text,
+  aadhaar text
+) as $$
+begin
+  return query
+  select 
+    full_name,
+    dob,
+    gender,
+    state_origin,
+    current_address,
+    pgp_sym_decrypt(contact_number::bytea, YOUR_SECRET_KEY)::text,
+    pgp_sym_decrypt(emergency_contact::bytea, YOUR_SECRET_KEY)::text,
+    pgp_sym_decrypt(aadhaar::bytea, YOUR_SECRET_KEY)::text
+  from encrypted_new_migrants
+  where pgp_sym_decrypt(aadhaar::bytea, YOUR_SECRET_KEY)::text = aadhaar_in;
+end;
+$$ language plpgsql;

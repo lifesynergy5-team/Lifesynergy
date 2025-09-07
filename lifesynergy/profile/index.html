@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShramArogya | Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Animations */
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes logoBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .fade-in {
+      animation: fadeSlide 0.8s ease forwards;
+    }
+    .logo-anim {
+      animation: logoBounce 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-lg p-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <img src="/assets/mainlogo-Photoroom (1).png" alt="Logo" class="w-10 h-10 rounded-full logo-anim shadow-md">
+      <h1 class="text-xl font-bold tracking-wide">ShramArogya</h1>
+    </div>
+    <button onclick="logout()" class="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </nav>
+
+  <!-- Profile Section -->
+  <main class="flex-1 container mx-auto p-6">
+    <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
+      <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-indigo-700">
+        <i class="fa-solid fa-user-circle"></i> Profile Details
+      </h2>
+
+      <div id="profileDetails" class="space-y-3 text-lg text-gray-700">
+        <p><strong>Name:</strong> <span id="name"></span></p>
+        <p><strong>Aadhaar:</strong> <span id="aadhaar"></span></p>
+        <p><strong>Mobile:</strong> <span id="mobile"></span></p>
+        <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
+        <p><strong>Gender:</strong> <span id="gender"></span></p>
+        <p><strong>State:</strong> <span id="state"></span></p>
+      </div>
+    </div>
+
+    <!-- Past Medical Records -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-6 fade-in">
+      <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-indigo-700">
+        <i class="fa-solid fa-notes-medical"></i> Past Medical Records
+      </h2>
+      <ul id="medicalRecords" class="list-disc pl-6 text-gray-700">
+        <li>Loading records...</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-4 text-center shadow-inner">
+    <p class="text-sm">&copy; 2025 ShramArogya. All rights reserved.</p>
+  </footer>
+
+  <!-- Supabase Script -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    // Supabase config
+    const supabaseUrl = 'https://clxuhmohunqntgynwmkm.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNseHVobW9odW5xbnRneW53bWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDg2NDMsImV4cCI6MjA3MjcyNDY0M30.gLPMfIREp-zCS5B3x5bbfAeHEWdjS1pDWA1Wu72LxHA'; // ⚠️ Replace with secure env key
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Helpers
+    function maskAadhaar(aadhaar) {
+      if (!aadhaar) return '';
+      return aadhaar.replace(/(\d{4})(\d{4})(\d{4})/, '$1-xxxx-$3');
+    }
+    function maskMobile(mobile) {
+      if (!mobile) return '';
+      return mobile.replace(/(\d{4})(\d{3})(\d{3})/, '$1xxxx$3');
+    }
+
+    async function fetchProfile() {
+      const aadhaar = localStorage.getItem('loggedInAadhaar'); 
+      if (!aadhaar) {
+        alert("⚠️ Not logged in. Please login again.");
+        window.location.href = "/index.html";
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .rpc('get_migrant_by_aadhaar', { aadhaar_input: aadhaar });
+
+        if (error || !data || data.length === 0) {
+          console.error(error);
+          alert("❌ User not found in DB");
+          return;
+        }
+
+        const migrant = data[0];
+        document.getElementById("name").textContent = migrant.full_name ?? "N/A";
+        document.getElementById("aadhaar").textContent = maskAadhaar(migrant.aadhaar);
+        document.getElementById("mobile").textContent = maskMobile(migrant.contact_number);
+        document.getElementById("dob").textContent = migrant.dob ?? "N/A";
+        document.getElementById("gender").textContent = migrant.gender ?? "N/A";
+        document.getElementById("state").textContent = migrant.state_origin ?? "N/A";
+
+        const recordsList = document.getElementById("medicalRecords");
+        recordsList.innerHTML = "";
+        if (migrant.conditions && migrant.conditions.length > 0) {
+          (Array.isArray(migrant.conditions) ? migrant.conditions : [migrant.conditions])
+            .forEach(c => {
+              const li = document.createElement("li");
+              li.textContent = c;
+              recordsList.appendChild(li);
+            });
+        } else {
+          recordsList.innerHTML = "<li>No past medical records found.</li>";
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Unexpected error: " + err.message);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInAadhaar");
+      window.location.href = "/index.html";
+    }
+
+    fetchProfile();
+  </script>
+
+  <!-- new -->
+
+  
+</body>
+</html>

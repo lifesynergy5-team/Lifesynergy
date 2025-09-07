@@ -1,0 +1,162 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Migrant Lookup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center p-6">
+
+  <h1 class="text-2xl font-bold mb-4">Migrant Lookup by Aadhaar</h1>
+
+  <form id="aadhaarForm" class="bg-white shadow-md rounded p-4 mb-6">
+    <label class="block mb-2 text-sm font-medium">Enter Aadhaar Number:</label>
+    <input type="text" name="aadhaar" id="aadhaarInput" maxlength="12" 
+           class="border rounded p-2 w-64 mb-4" placeholder="12-digit Aadhaar" required>
+    <button type="submit" 
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Search
+    </button>
+  </form>
+
+  <div id="result" class="w-full max-w-2xl"></div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Migrant Lookup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Smooth fade-in animation */
+    .fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Subtle scale on hover */
+    .hover-scale:hover {
+      transform: scale(1.02);
+      transition: transform 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-indigo-100 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <!-- Navbar -->
+<nav class="bg-white shadow-md fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
+    
+    <!-- Logo -->
+    <div class="flex items-center space-x-3">
+      <img src="/assets/mainlogo-Photoroom (1).png" alt="Logo" class="w-8 h-8">
+      <span class="text-xl font-bold text-blue-700">ShramArogya</span>
+    </div>
+
+    <!-- Menu -->
+    <ul class="flex space-x-8 text-gray-700 font-medium">
+      <li>
+        <a href="#" 
+           class="flex items-center space-x-2 relative group transition">
+          <!-- Home icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               class="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" 
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M3 12l2-2m0 0l7-7 7 7m-9 2v10m4-10v10m5-10h2m-6 0H4" />
+          </svg>
+          <span>Home</span>
+          <!-- Animated underline -->
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+        </a>
+      </li>
+
+      <li>
+        <a href="#" 
+           class="flex items-center space-x-2 relative group transition">
+          <!-- Info icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               class="w-5 h-5 text-indigo-600 group-hover:rotate-12 transition-transform" 
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>About</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 transition-all group-hover:w-full"></span>
+        </a>
+      </li>
+
+      <li>
+        <a href="#" 
+           class="flex items-center space-x-2 relative group transition">
+          <!-- Phone icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               class="w-5 h-5 text-green-600 group-hover:scale-110 transition-transform" 
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.95.684l1.517 4.55a1 1 0 01-.272 1.06l-2.3 2.3a16.001 16.001 0 006.586 6.586l2.3-2.3a1 1 0 011.06-.272l4.55 1.517a1 1 0 01.684.95V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <span>Contact</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-600 transition-all group-hover:w-full"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+  <!-- Main Section -->
+  <main class="flex-grow flex flex-col items-center justify-center px-6 pt-28 fade-in">
+    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6 tracking-tight">
+      🔍 Migrant Lookup by Aadhaar
+    </h1>
+
+    <!-- Search Form -->
+    <form id="aadhaarForm" 
+          class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md hover-scale">
+      <label class="block mb-2 text-sm font-medium text-gray-700">Enter Aadhaar Number:</label>
+      <input type="text" name="aadhaar" id="aadhaarInput" maxlength="12"
+             class="border rounded-lg p-3 w-full mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+             placeholder="12-digit Aadhaar" required>
+      <button type="submit"
+              class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:opacity-90 transition">
+        Search
+      </button>
+    </form>
+
+    <!-- Result -->
+    <div id="result" class="w-full max-w-3xl mt-10 fade-in"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white shadow-inner py-6 mt-10">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-6">
+      <p class="text-gray-600 text-sm">&copy; 2025 ShramArogya. All rights reserved.</p>
+      <div class="flex space-x-4 mt-3 md:mt-0">
+        <a href="#" class="text-gray-500 hover:text-blue-600 transition">
+          <img src="https://img.icons8.com/ios-glyphs/24/000000/facebook-new.png"/>
+        </a>
+        <a href="#" class="text-gray-500 hover:text-blue-600 transition">
+          <img src="https://img.icons8.com/ios-glyphs/24/000000/twitter--v1.png"/>
+        </a>
+        <a href="#" class="text-gray-500 hover:text-blue-600 transition">
+          <img src="https://img.icons8.com/ios-glyphs/24/000000/linkedin.png"/>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Keep your JS as is -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
+

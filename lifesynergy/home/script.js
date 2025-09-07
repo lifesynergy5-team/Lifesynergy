@@ -147,6 +147,11 @@ function exportReport(migrant) {
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute("href", dataStr);
   downloadAnchorNode.setAttribute("download", `${migrant.id}_report.json`);
+
+
+
+
+  
   document.body.appendChild(downloadAnchorNode);
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
